@@ -51,6 +51,6 @@ if __name__ == "__main__":
         decrypted_message = decrypt(encrypted_message, key)
         print("Decrypted message:", decrypted_message)
 
-        response = encrypt(decrypted_message, key)
+        response = decrypt(decrypted_message, key)
         client.sendall(response.encode())
         client.close()
