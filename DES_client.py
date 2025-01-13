@@ -1,5 +1,4 @@
 import socket
-import sys
 
 IP_TABLE = [58, 50, 42, 34, 26, 18, 10, 2,
             60, 52, 44, 36, 28, 20, 12, 4,
@@ -28,17 +27,20 @@ def string_to_bits(s):
 def bits_to_string(b):
     return ''.join(chr(int(b[i:i+8], 2)) for i in range(0, len(b), 8))
 
+def pad_to_64_bits(bits):
+    return bits.ljust(64, '0')
+
 def encrypt(plaintext, key):
     pt_bits = string_to_bits(plaintext)
+    pt_bits = pad_to_64_bits(pt_bits)
     permuted_pt = permute(pt_bits, IP_TABLE)
-    # Placeholder for rounds of DES, using just a simple reversal
     ciphertext_bits = permuted_pt[::-1]
     final_ct = permute(ciphertext_bits, FP_TABLE)
     return bits_to_string(final_ct)
 
 if __name__ == "__main__":
     ip = "127.0.0.1"
-    port = 4455
+    port = 3344
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((ip, port))
 
