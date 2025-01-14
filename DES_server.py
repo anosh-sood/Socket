@@ -21,26 +21,19 @@ FP_TABLE = [40, 8, 48, 16, 56, 24, 64, 32,
 def permute(block, table):
     return ''.join([block[i - 1] for i in table])
 
-def string_to_bits(s):
-    return ''.join(format(ord(c), '08b') for c in s)
-
-def bits_to_string(b):
-    return ''.join(chr(int(b[i:i+8], 2)) for i in range(0, len(b), 8))
-
 def pad_to_64_bits(bits):
     return bits.ljust(64, '0')
 
-def decrypt(ciphertext, key):
-    ct_bits = string_to_bits(ciphertext)
-    ct_bits = pad_to_64_bits(ct_bits)
-    permuted_ct = permute(ct_bits, IP_TABLE)
+def decrypt(ciphertext_bits, key):
+    ciphertext_bits = pad_to_64_bits(ciphertext_bits)
+    permuted_ct = permute(ciphertext_bits, IP_TABLE)
     plaintext_bits = permuted_ct[::-1]
     final_pt = permute(plaintext_bits, FP_TABLE)
-    return bits_to_string(final_pt)
+    return final_pt
 
 if __name__ == "__main__":
     ip = "127.0.0.1"
-    port = 3344
+    port = 5000
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((ip, port))
     server.listen(5)
@@ -51,8 +44,8 @@ if __name__ == "__main__":
         encrypted_message = client.recv(1024).decode()
         key = "hardkey"
         decrypted_message = decrypt(encrypted_message, key)
-        print("Decrypted message:", decrypted_message)
+        print("Decrypted 64-bit binary message:", decrypted_message)
 
-        response = decrypt(decrypted_message, key)
+        response = decrypted_message
         client.sendall(response.encode())
         client.close()

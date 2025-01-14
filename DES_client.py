@@ -21,32 +21,26 @@ FP_TABLE = [40, 8, 48, 16, 56, 24, 64, 32,
 def permute(block, table):
     return ''.join([block[i - 1] for i in table])
 
-def string_to_bits(s):
-    return ''.join(format(ord(c), '08b') for c in s)
-
-def bits_to_string(b):
-    return ''.join(chr(int(b[i:i+8], 2)) for i in range(0, len(b), 8))
-
 def pad_to_64_bits(bits):
     return bits.ljust(64, '0')
 
-def encrypt(plaintext, key):
-    pt_bits = string_to_bits(plaintext)
-    pt_bits = pad_to_64_bits(pt_bits)
-    permuted_pt = permute(pt_bits, IP_TABLE)
+def encrypt(plaintext_bits, key):
+    plaintext_bits = pad_to_64_bits(plaintext_bits)
+    permuted_pt = permute(plaintext_bits, IP_TABLE)
     ciphertext_bits = permuted_pt[::-1]
     final_ct = permute(ciphertext_bits, FP_TABLE)
-    return bits_to_string(final_ct)
+    return final_ct
 
 if __name__ == "__main__":
     ip = "127.0.0.1"
-    port = 3344
+    port = 5000
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((ip, port))
 
-    string = input("Enter string: ")
+    binary_input = input("Enter 64-bit binary string: ")
     key = "hardkey"
-    encrypted_message = encrypt(string, key)
+    encrypted_message = encrypt(binary_input, key)
+    print("Encrypted Binary Message: ", encrypted_message)
 
     server.sendall(encrypted_message.encode())
     response = server.recv(1024)
